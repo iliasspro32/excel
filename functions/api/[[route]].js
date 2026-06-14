@@ -34,7 +34,35 @@ export async function onRequest(context) {
       if (request.method === "GET") {
         let config = await DB.get("config", "json");
         if (!config) config = {};
-        return new Response(JSON.stringify(config), { headers });
+        
+        const pwd = request.headers.get("x-admin-password");
+        if (pwd) {
+          checkAuth();
+          return new Response(JSON.stringify(config), { headers });
+        } else {
+          const publicConfig = {
+            productName: config.productName,
+            price: config.price,
+            currency: config.currency,
+            countdownHours: config.countdownHours,
+            successUrl: config.successUrl,
+            supportEmail: config.supportEmail,
+            stripePublishableKey: config.stripePublishableKey,
+            orderBumpEnabled: config.orderBumpEnabled,
+            orderBumpName: config.orderBumpName,
+            orderBumpDescription: config.orderBumpDescription,
+            orderBumpImageUrl: config.orderBumpImageUrl,
+            orderBumpPrice: config.orderBumpPrice,
+            upsellEnabled: config.upsellEnabled,
+            upsellName: config.upsellName,
+            upsellDescription: config.upsellDescription,
+            upsellImageUrl: config.upsellImageUrl,
+            upsellPrice: config.upsellPrice,
+            metaPixelId: config.metaPixelId,
+            gtmId: config.gtmId
+          };
+          return new Response(JSON.stringify(publicConfig), { headers });
+        }
       } else if (request.method === "POST") {
         checkAuth();
         const data = await request.json();

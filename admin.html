@@ -690,7 +690,11 @@
     async function verifySavedConfig(expected) {
       for (let attempt = 1; attempt <= 4; attempt += 1) {
         await wait(attempt * 900);
-        const verifyRes = await fetch("/api/config?verify=" + Date.now(), { cache: "no-store" });
+        const pw = getPassword();
+        const verifyRes = await fetch("/api/config?verify=" + Date.now(), { 
+          cache: "no-store",
+          headers: pw ? { "x-admin-password": pw } : {}
+        });
         if (!verifyRes.ok) continue;
         const verified = await verifyRes.json();
         if (configsMatch(verified, expected)) return verified;
@@ -702,7 +706,18 @@
       const { loadActiveTab = true } = options;
       savePassword();
       try {
-        const res = await fetch("/api/config", { cache: "no-store" });
+        const pw = getPassword();
+        if (!pw) {
+          throw new Error("Contraseña incorrecta.");
+        }
+        const res = await fetch("/api/config", { 
+          cache: "no-store", 
+          headers: pw ? { "x-admin-password": pw } : {} 
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || "Contraseña incorrecta o error de red.");
+        }
         const cfg = await res.json();
         setForm(cfg);
         setAuthStatus("Configuración cargada.", "ok");
@@ -713,7 +728,7 @@
         loadProducts();
         loadMessages();
       } catch (err) {
-        setAuthStatus("No se pudo cargar /api/config. Despliega en Cloudflare.", "bad");
+        setAuthStatus(err.message === "Unauthorized" || err.message.includes("Contraseña") ? "Contraseña incorrecta." : "No se pudo cargar /api/config. Despliega en Cloudflare.", "bad");
         // Even if config fails, try to load products with saved password
         loadProducts();
         loadMessages();
