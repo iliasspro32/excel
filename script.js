@@ -34,9 +34,9 @@ const DEFAULT_CONFIG = {
   ],
 
   bonos: [
-    { titulo: "Ebook: Ahorro Inteligente", descripcion: "Sistema probado para salir de deudas.", precioNormal: "$68", imagen: "https://res.cloudinary.com/dcueissks/image/upload/v1781379720/c26fbb38-c4f8-47e8-a547-ccaa061c5e56_kufix5.png" },
-    { titulo: "Ebook: Gastos Imprevistos", descripcion: "Guía para manejar emergencias.", precioNormal: "$12", imagen: "https://res.cloudinary.com/dcueissks/image/upload/v1781379720/a727b37f-82a1-42f6-966f-774e78b36419_mcqrm6.png" },
-    { titulo: "Ebook: Ingresos Bajos", descripcion: "Método realista para maximizar ganancias.", precioNormal: "$12", imagen: "https://res.cloudinary.com/dcueissks/image/upload/v1781379720/72cbac34-0ba8-472c-a027-d0e3449149ac_qlma1i.png" }
+    { titulo: "Ebook: Ahorro Inteligente", descripcion: "Sistema probado para salir de deudas.", precioNormal: "$68", imagen: "https://res.cloudinary.com/dcueissks/image/upload/v1781392811/38aac24e-78af-4140-bdb7-55dccd4e1f04_w4kol3.png" },
+    { titulo: "Ebook: Gastos Imprevistos", descripcion: "Guía para manejar emergencias.", precioNormal: "$12", imagen: "https://res.cloudinary.com/dcueissks/image/upload/v1781392811/be68f53e-963f-4395-82d0-deee4b63e468_j1kxo9.png" },
+    { titulo: "Ebook: Ingresos Bajos", descripcion: "Método realista para maximizar ganancias.", precioNormal: "$12", imagen: "https://res.cloudinary.com/dcueissks/image/upload/v1781392810/ca3f743f-5583-4b85-91d4-23fdd97c571a_olxdfm.png" }
   ],
 
   faq: [

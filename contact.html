@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="es" dir="ltr">
 <head>
   <!-- Google Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -10,7 +10,7 @@
   <!-- End Google Tag Manager -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>اتصل بنا - Digital Products Pack</title>
+  <title>Contáctenos - Digital Products Pack</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -66,44 +66,44 @@
   <main>
     <a href="./index.html" class="back-link">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      العودة إلى الصفحة الرئيسية
+      Volver a la página principal
     </a>
 
     <div class="page-header">
-      <span class="eyebrow">الدعم</span>
-      <h1>اتصل بنا</h1>
-      <p class="subtitle">هل لديك سؤال أو مشكلة؟ أرسل لنا رسالة وسنرد عليك في أقرب وقت.</p>
+      <span class="eyebrow">Soporte</span>
+      <h1>Contáctenos</h1>
+      <p class="subtitle">¿Tienes alguna pregunta o problema? Envíanos un mensaje y te responderemos lo antes posible.</p>
     </div>
 
     <div class="form-card">
       <form id="contact-form" novalidate>
         <div class="form-row-2">
           <div class="form-row" style="margin-bottom:0">
-            <label for="name">الاسم الكامل</label>
-            <input class="form-control" type="text" id="name" name="name" placeholder="اسمك" required>
+            <label for="name">nombre completo</label>
+            <input class="form-control" type="text" id="name" name="name" placeholder="Ej: Juan Pérez" required>
           </div>
           <div class="form-row" style="margin-bottom:0">
-            <label for="email">البريد الإلكتروني</label>
-            <input class="form-control" type="email" id="email" name="email" placeholder="بريدك@example.com" required>
+            <label for="email">correo electrónico</label>
+            <input class="form-control" type="email" id="email" name="email" placeholder="tu-email@ejemplo.com" required>
           </div>
         </div>
         <div class="form-row" style="margin-top:22px">
-          <label for="subject">الموضوع</label>
+          <label for="subject">el tema</label>
           <select class="form-control" id="subject" name="subject" required>
-            <option value="" disabled selected>اختر موضوعًا…</option>
-            <option value="Product Access">مشكلة في الوصول إلى المنتج أو التنزيل</option>
-            <option value="Defective File">ملف تالف أو معيب</option>
-            <option value="Billing">سؤال حول الفاتورة أو الدفع</option>
-            <option value="General">استفسار عام</option>
-            <option value="Other">أخرى</option>
+            <option value="" disabled selected>Elige un tema…</option>
+            <option value="Product Access">Problema con el acceso al producto o descarga</option>
+            <option value="Defective File">Archivo defectuoso o dañado</option>
+            <option value="Billing">Pregunta sobre facturación o pago</option>
+            <option value="General">Consulta general</option>
+            <option value="Other">Otro</option>
           </select>
         </div>
         <div class="form-row">
-          <label for="message">الرسالة</label>
-          <textarea class="form-control" id="message" name="message" placeholder="اشرح مشكلتك أو سؤالك بالتفصيل…" required></textarea>
+          <label for="message">mensaje</label>
+          <textarea class="form-control" id="message" name="message" placeholder="Explica tu problema o pregunta con detalle…" required></textarea>
         </div>
         <input name="_hp" type="text" tabindex="-1" autocomplete="off" style="display:none;position:absolute;left:-9999px" aria-hidden="true">
-        <button type="submit" class="submit-btn" id="submit-btn">إرسال الرسالة</button>
+        <button type="submit" class="submit-btn" id="submit-btn">enviar mensaje</button>
       </form>
       <div class="form-status" id="form-status"></div>
     </div>
@@ -111,11 +111,11 @@
     <div class="info-strip">
       <div class="info-item">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        الرد خلال 24–48 ساعة
+        Respondemos en 24-48 horas
       </div>
       <div class="info-item">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        أيام العمل فقط
+        Días laborables
       </div>
     </div>
   </main>
@@ -134,16 +134,16 @@
         var message = form.message.value.trim();
 
         if(!name || !email || !subject || !message){
-          showStatus('error', 'يرجى ملء جميع الحقول.');
+          showStatus('error', 'Por favor, rellena todos los campos.');
           return;
         }
         if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-          showStatus('error', 'يرجى إدخال بريد إلكتروني صحيح.');
+          showStatus('error', 'Por favor, introduce un correo electrónico válido.');
           return;
         }
 
         btn.disabled = true;
-        btn.textContent = 'جارٍ الإرسال…';
+        btn.textContent = 'Enviando…';
         status.className = 'form-status';
         status.style.display = 'none';
 
@@ -156,15 +156,15 @@
           var data = await res.json().catch(()=>({}));
           if(res.ok && data.ok){
             form.reset();
-            showStatus('success', 'تم إرسال رسالتك! سنتواصل معك خلال 24–48 ساعة عمل.');
+            showStatus('success', '¡Tu mensaje ha sido enviado! Te contactaremos en 24-48 horas laborables.');
           } else {
-            showStatus('error', data.error || 'حدث خطأ ما. يرجى المحاولة مرة أخرى.');
+            showStatus('error', data.error || 'Hubo un error. Por favor, inténtalo de nuevo.');
           }
         } catch(_){
-          showStatus('error', 'خطأ في الشبكة. يرجى التحقق من اتصالك والمحاولة مجددًا.');
+          showStatus('error', 'Error de red. Por favor verifica tu conexión e inténtalo de nuevo.');
         } finally {
           btn.disabled = false;
-          btn.textContent = 'إرسال الرسالة';
+          btn.textContent = 'enviar mensaje';
         }
       });
 

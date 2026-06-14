@@ -48,7 +48,7 @@ async function run() {
   
   console.log("Translation complete. Applying to files...");
   
-  const files = ['admin.html', 'panel.html', 'checkout.html', 'success.html'];
+  const files = ['portal.html', 'contact.html', 'delivery.html', 'privacy.html', 'refund.html', 'terms.html'];
   
   files.forEach(f => {
     if (!fs.existsSync(f)) return;
