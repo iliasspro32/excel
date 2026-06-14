@@ -169,7 +169,7 @@
     </header>
 
     <!-- Auth row (siempre visible) -->
-    <div class="card" style="margin-bottom:18px">
+    <div class="card" id="auth-row" style="margin-bottom:18px">
       <div class="bar"></div>
       <div class="content" style="padding:16px 22px">
         <div class="login">
@@ -724,6 +724,7 @@
         const cfg = await res.json();
         setForm(cfg);
         document.getElementById("dashboard-wrap").style.display = "block";
+        document.getElementById("auth-row").style.display = "none";
         setAuthStatus("Configuración cargada.", "ok");
         setConfigStatus("Configuración cargada. Puedes editar y guardar.", "ok");
         setReminderStatus("Se han cargado las configuraciones del recordatorio.", "ok");
@@ -733,6 +734,7 @@
         loadMessages();
       } catch (err) {
         document.getElementById("dashboard-wrap").style.display = "none";
+        document.getElementById("auth-row").style.display = "block";
         setAuthStatus(err.message === "Unauthorized" || err.message.includes("Contraseña") ? "Contraseña incorrecta." : "No se pudo cargar /api/config. Despliega en Cloudflare.", "bad");
         // Even if config fails, try to load products with saved password
         loadProducts();
