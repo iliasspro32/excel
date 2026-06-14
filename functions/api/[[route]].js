@@ -80,23 +80,61 @@ export async function onRequest(context) {
     }
     
     if (path.startsWith("/api/products")) {
-      let products = await DB.get("products", "json");
-      if (!products) products = [];
+      let products = await DB.get("products", "json") || [];
+      let categories = await DB.get("categories", "json") || [
+        "Canva Templates", "Design", "Ebook", "Video", "Audio", "Software", "Social Media", "Marketing", "Otros"
+      ];
       
       if (request.method === "GET") {
-        return new Response(JSON.stringify(products), { headers });
-      } else if (request.method === "POST" || request.method === "DELETE") {
+        return new Response(JSON.stringify({ products, categories }), { headers });
+      } else if (request.method === "POST" || request.method === "PUT") {
         checkAuth();
         const data = await request.json();
-        if (data.action === "delete") {
-           products = products.filter(p => p.id !== data.id);
+        
+        if (data.type === "category") {
+          if (request.method === "POST") {
+            if (!categories.includes(data.name)) categories.push(data.name);
+          } else if (request.method === "PUT") {
+            const idx = categories.indexOf(data.from);
+            if (idx >= 0) categories[idx] = data.to;
+            products = products.map(p => p.category === data.from ? { ...p, category: data.to } : p);
+            await DB.put("products", JSON.stringify(products));
+          }
+          await DB.put("categories", JSON.stringify(categories));
+          return new Response(JSON.stringify({ products, categories }), { headers });
         } else {
-           const idx = products.findIndex(p => p.id === data.id);
-           if (idx >= 0) products[idx] = data;
-           else products.push(data);
+          data.active = data.active !== false;
+          if (!data.id) data.id = "p_" + Date.now();
+          
+          if (request.method === "POST") {
+             products.push(data);
+          } else {
+             const idx = products.findIndex(p => p.id === data.id);
+             if (idx >= 0) products[idx] = data;
+             else products.push(data);
+          }
+          await DB.put("products", JSON.stringify(products));
+          return new Response(JSON.stringify({ products, categories }), { headers });
         }
-        await DB.put("products", JSON.stringify(products));
-        return new Response(JSON.stringify(products), { headers });
+      } else if (request.method === "DELETE") {
+        checkAuth();
+        const id = url.searchParams.get("id");
+        const category = url.searchParams.get("category");
+        const fallback = url.searchParams.get("fallback") || "Sin categoría";
+        
+        if (id) {
+          products = products.filter(p => p.id !== id);
+          await DB.put("products", JSON.stringify(products));
+          return new Response(JSON.stringify({ products, categories }), { headers });
+        } else if (category) {
+          categories = categories.filter(c => c !== category);
+          products = products.map(p => p.category === category ? { ...p, category: fallback } : p);
+          if (!categories.includes(fallback)) categories.push(fallback);
+          await DB.put("categories", JSON.stringify(categories));
+          await DB.put("products", JSON.stringify(products));
+          return new Response(JSON.stringify({ products, categories }), { headers });
+        }
+        return new Response(JSON.stringify({ products, categories }), { headers });
       }
     }
     
