@@ -183,7 +183,9 @@
       </div>
     </div>
 
-    <!-- Tabs -->
+    <!-- DASHBOARD WRAP (Hidden until auth) -->
+    <div id="dashboard-wrap" style="display:none">
+    <!-- TABS MENU -->
     <div class="tabs">
       <button class="tab-btn active" data-tab="orders" type="button">🛒 Pedidos</button>
       <button class="tab-btn" data-tab="carts" type="button">🛍️ Carritos</button>
@@ -580,6 +582,7 @@
       </div>
     </div>
 
+    </div> <!-- end dashboard-wrap -->
   </main>
 
   <script>
@@ -720,6 +723,7 @@
         }
         const cfg = await res.json();
         setForm(cfg);
+        document.getElementById("dashboard-wrap").style.display = "block";
         setAuthStatus("Configuración cargada.", "ok");
         setConfigStatus("Configuración cargada. Puedes editar y guardar.", "ok");
         setReminderStatus("Se han cargado las configuraciones del recordatorio.", "ok");
@@ -728,6 +732,7 @@
         loadProducts();
         loadMessages();
       } catch (err) {
+        document.getElementById("dashboard-wrap").style.display = "none";
         setAuthStatus(err.message === "Unauthorized" || err.message.includes("Contraseña") ? "Contraseña incorrecta." : "No se pudo cargar /api/config. Despliega en Cloudflare.", "bad");
         // Even if config fails, try to load products with saved password
         loadProducts();
