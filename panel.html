@@ -378,7 +378,7 @@
           headers["x-order-email"] = cachedEmail;
           headers["x-order-id"]    = cachedOrder;
         }
-        const res  = await fetch("/api/portal-products", { headers, cache: "no-store" });
+        const res  = await fetch("/api/portal-products", { headers, credentials: "include", cache: "no-store" });
         const data = await res.json();
         allProducts = data.products || [];
         currentUser = data.user || null;
