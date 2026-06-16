@@ -141,7 +141,59 @@ export async function onRequest(context) {
     if (path.startsWith("/api/portal-products")) {
        let products = await DB.get("products", "json") || [];
        let config = await DB.get("config", "json") || {};
-       return new Response(JSON.stringify({ products: products.filter(p => p.active), config }), { headers });
+       let orders = await DB.get("orders", "json") || [];
+
+       let user = null;
+       let isPurchaser = false;
+
+       // 1. Check Google session cookie
+       const cookieHeader = request.headers.get("Cookie") || "";
+       const sessionToken = cookieHeader.match(/session=([^;]+)/)?.[1];
+       if (sessionToken) {
+         try {
+           const sessionSecret = env.SESSION_SECRET || "excel-portal-session-secret-2026-secure-xyz789";
+           const [dataB64, sig] = sessionToken.split(".");
+           const sessionJson = atob(dataB64);
+           const key = await crypto.subtle.importKey(
+             "raw", new TextEncoder().encode(sessionSecret),
+             { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+           );
+           const computed = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(sessionJson));
+           const expectedSig = btoa(String.fromCharCode(...new Uint8Array(computed)));
+           if (sig === expectedSig) {
+             const sd = JSON.parse(sessionJson);
+             user = { email: sd.email, name: sd.name, picture: sd.picture };
+             isPurchaser = orders.some(o =>
+               o.email?.toLowerCase() === sd.email?.toLowerCase()
+             );
+           }
+         } catch (_) {}
+       }
+
+       // 2. Check order-based access headers (x-order-email + x-order-id)
+       if (!isPurchaser) {
+         const orderEmail = (request.headers.get("x-order-email") || "").toLowerCase().trim();
+         const orderId = (request.headers.get("x-order-id") || "").toUpperCase().trim();
+         if (orderEmail && orderId) {
+           const match = orders.find(o =>
+             o.email?.toLowerCase() === orderEmail &&
+             (o.orderId?.toUpperCase() === orderId || o.id?.toUpperCase() === orderId)
+           );
+           if (match) {
+             isPurchaser = true;
+             if (!user) user = { email: orderEmail };
+           }
+         }
+       }
+
+       const activeProducts = products.filter(p => p.active);
+       return new Response(JSON.stringify({
+         products: activeProducts,
+         config,
+         isPurchaser,
+         user,
+         code: isPurchaser ? "OK" : "NO_PURCHASE"
+       }), { headers });
     }
 
     if (path.startsWith("/api/orders")) {
