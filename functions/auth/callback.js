@@ -25,9 +25,9 @@ export async function onRequest(context) {
     return Response.redirect(`${redirectBase}&error=auth_failed`, 302);
   }
 
-  const clientId = env.GOOGLE_CLIENT_ID || "158887462780-n6o6cgdbenbbhtabgrcl831u0gi6arlu.apps.googleusercontent.com";
-  const clientSecret = env.GOOGLE_CLIENT_SECRET || "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";
-  const sessionSecret = env.SESSION_SECRET || "excel-portal-session-secret-2026-secure-xyz789";
+  const clientId = env.GOOGLE_CLIENT_ID;
+  const clientSecret = env.GOOGLE_CLIENT_SECRET;
+  const sessionSecret = env.SESSION_SECRET || "default-secret-change-me";
 
   if (!clientId || !clientSecret) {
     return Response.redirect(`${redirectBase}&error=auth_not_configured`, 302);
