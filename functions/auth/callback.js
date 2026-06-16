@@ -87,15 +87,13 @@ export async function onRequest(context) {
     const sessionJson = JSON.stringify(sessionData);
     const sessionToken = btoa(sessionJson) + "." + await sign(sessionJson, sessionSecret);
 
+    const responseHeaders = new Headers({ "Location": redirectBase });
+    responseHeaders.append("Set-Cookie", `oauth_state=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`);
+    responseHeaders.append("Set-Cookie", `session=${sessionToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=2592000`);
+
     return new Response(null, {
       status: 302,
-      headers: {
-        "Location": redirectBase,
-        "Set-Cookie": [
-          `oauth_state=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`,
-          `session=${sessionToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=2592000`
-        ].join(", ")
-      }
+      headers: responseHeaders
     });
 
   } catch (err) {
