@@ -1,16 +1,17 @@
-// v2 - google oauth handler
+// v3 - google oauth handler with hardcoded fallback
 export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
 
-  const clientId = env.GOOGLE_CLIENT_ID;
+  // CLIENT_ID is public - safe to hardcode as fallback
+  const clientId = env.GOOGLE_CLIENT_ID || "158887462780-n6o6cgdbenbbhtabgrcl831u0gi6arlu.apps.googleusercontent.com";
   if (!clientId) {
-    const returnUrl = url.searchParams.get("return") || "/portal.html";
+    const returnUrl = url.searchParams.get("return") || "/panel.html";
     return Response.redirect(`${url.origin}${returnUrl}?error=auth_not_configured`, 302);
   }
 
   const lang = url.searchParams.get("lang") || "es";
-  const returnPath = url.searchParams.get("return") || "/portal.html";
+  const returnPath = url.searchParams.get("return") || "/panel.html";
 
   // State anti-CSRF: encode lang + return path
   const state = btoa(JSON.stringify({ lang, return: returnPath, nonce: crypto.randomUUID() }));
