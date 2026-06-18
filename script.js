@@ -1,7 +1,7 @@
 const DEFAULT_CONFIG = {
   // Información Global y SEO
   metaTitle: "Mega Pack Plantillas Excel | La Colección Definitiva",
-  metaDescription: "Más de 3000 plantillas Excel profesionales para contabilidad, RRHH, ingeniería, finanzas y más. Organiza tu negocio hoy.",
+  metaDescription: "Más de 500 plantillas Excel profesionales para contabilidad, RRHH, ingeniería, finanzas y más. Organiza tu negocio hoy.",
   checkoutUrl: "./checkout.html",
   precioNormal: 102,
   precioOferta: 12,

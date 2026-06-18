@@ -223,9 +223,20 @@ export async function onRequest(context) {
     if (path.startsWith("/api/messages")) {
       if (request.method === "GET") {
         checkAuth();
-        return new Response(JSON.stringify([]), { headers });
+        let msgs = await DB.get("messages", "json") || [];
+        return new Response(JSON.stringify(msgs), { headers });
       } else if (request.method === "POST") {
         checkAuth();
+        return new Response(JSON.stringify({ ok: true }), { headers });
+      }
+    }
+
+    if (path.startsWith("/api/contact")) {
+      if (request.method === "POST") {
+        const data = await request.json();
+        let msgs = await DB.get("messages", "json") || [];
+        msgs.push({ ...data, id: "msg_" + Date.now(), date: new Date().toISOString(), read: false });
+        await DB.put("messages", JSON.stringify(msgs));
         return new Response(JSON.stringify({ ok: true }), { headers });
       }
     }
