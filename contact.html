@@ -149,17 +149,26 @@
         status.style.display = 'none';
 
         try {
-          var res = await fetch('/api/contact', {
+          var res = await fetch('https://formsubmit.co/ajax/iliasspro32@gmail.com', {
             method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({name, email, subject, message, lang:'ar', page: location.href, _hp: form._hp.value})
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+              _subject: "Nuevo Mensaje: " + subject,
+              Nombre: name,
+              Email: email,
+              Asunto: subject,
+              Mensaje: message
+            })
           });
           var data = await res.json().catch(()=>({}));
-          if(res.ok && data.ok){
+          if(res.ok && data.success){
             form.reset();
-            showStatus('success', '¡Tu mensaje ha sido enviado! Te contactaremos en 24-48 horas laborables.');
+            showStatus('success', '¡Tu mensaje ha sido enviado! Te contactaremos a tu correo en breve.');
           } else {
-            showStatus('error', data.error || 'Hubo un error. Por favor, inténtalo de nuevo.');
+            showStatus('error', data.message || 'Hubo un error al enviar el correo. Por favor, inténtalo de nuevo.');
           }
         } catch(_){
           showStatus('error', 'Error de red. Por favor verifica tu conexión e inténtalo de nuevo.');

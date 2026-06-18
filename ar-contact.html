@@ -149,17 +149,26 @@
         status.style.display = 'none';
 
         try {
-          var res = await fetch('/api/contact', {
+          var res = await fetch('https://formsubmit.co/ajax/iliasspro32@gmail.com', {
             method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({name, email, subject, message, lang:'ar', page: location.href, _hp: form._hp.value})
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+              _subject: "Nuevo Mensaje (Árabe): " + subject,
+              Nombre: name,
+              Email: email,
+              Asunto: subject,
+              Mensaje: message
+            })
           });
           var data = await res.json().catch(()=>({}));
-          if(res.ok && data.ok){
+          if(res.ok && data.success){
             form.reset();
-            showStatus('success', 'تم إرسال رسالتك! سنتواصل معك خلال 24–48 ساعة عمل.');
+            showStatus('success', 'تم إرسال رسالتك! سنتواصل معك قريباً.');
           } else {
-            showStatus('error', data.error || 'حدث خطأ ما. يرجى المحاولة مرة أخرى.');
+            showStatus('error', data.message || 'حدث خطأ ما. يرجى المحاولة مرة أخرى.');
           }
         } catch(_){
           showStatus('error', 'خطأ في الشبكة. يرجى التحقق من اتصالك والمحاولة مجددًا.');
