@@ -739,4 +739,14 @@ section {
   .glass-card {
     padding: 1.5rem;
   }
+  /* Navbar Mobile Fixes */
+  .logo span {
+    font-size: 1.1rem !important;
+  }
+  .navbar-container .btn-action {
+    padding: 0.5rem 0.8rem !important;
+    font-size: 0.75rem !important;
+    white-space: nowrap;
+    border-radius: 8px;
+  }
 }
