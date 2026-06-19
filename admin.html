@@ -501,8 +501,12 @@
                 <input id="resendApiKey" type="text" placeholder="re_xxxxxxxxxxxxxxxx">
                 <span style="color:var(--muted);font-size:.8rem;font-weight:400">Obtén tu clave en <a href="https://resend.com" target="_blank">resend.com</a> (gratis hasta 3.000 emails/mes)</span>
               </label>
-              <label class="full">Email del admin (donde recibes las notificaciones)
+              <label class="full">Email para recibir notificaciones
                 <input id="notifyEmail" type="email" placeholder="tu@email.com">
+              </label>
+              <label class="full">Email remitente (From)
+                <input id="fromEmail" type="email" placeholder="contacto@midominio.com">
+                <span style="color:var(--muted);font-size:.8rem;font-weight:400">Debe estar verificado en Resend. Si está vacío, usa onboarding@resend.dev</span>
               </label>
             </div>
           </div>
@@ -577,7 +581,7 @@
       "supportEmail","metaPixelId","gtmId","stripePublishableKey","stripePriceId",
       "orderBumpEnabled","orderBumpName","orderBumpDescription","orderBumpImageUrl","orderBumpPrice","orderBumpStripePriceId",
       "upsellEnabled","upsellName","upsellDescription","upsellImageUrl","upsellPrice","upsellStripePriceId",
-      "paypalClientId","paypalClientSecret","paypalMerchantId","notifyEmail","resendApiKey","googleClientId",
+      "paypalClientId","paypalClientSecret","paypalMerchantId","notifyEmail","fromEmail","resendApiKey","googleClientId",
       "cloudinaryCloudName","cloudinaryUploadPreset","cartCampaignMinHours","cartReminderSubject",
       "cartReminderHeadline","cartReminderBody","cartReminderCta","businessAddress"
     ];
@@ -1485,19 +1489,28 @@
       if (!downloadUrl) { setProdStatus("La URL de descarga es obligatoria.", "bad"); return; }
       setProdStatus(editingProductId ? "Guardando cambios…" : "Añadiendo…");
       try {
-        const url = editingProductId ? "/api/products?id=" + encodeURIComponent(editingProductId) : "/api/products";
-        const res = await fetch(url, {
-          method: editingProductId ? "PUT" : "POST",
+        const newProd = {
+          id: editingProductId || ("p_" + Date.now()),
+          name,
+          category: document.getElementById("prod-category").value,
+          accessLevel: document.getElementById("prod-access").value,
+          imageUrl: document.getElementById("prod-image").value.trim(),
+          downloadUrl,
+          description: document.getElementById("prod-description").value.trim(),
+          active: document.getElementById("prod-active").checked
+        };
+
+        let nextProducts = [...allProducts];
+        if (editingProductId) {
+          nextProducts = nextProducts.map(p => p.id === editingProductId ? newProd : p);
+        } else {
+          nextProducts = [newProd, ...nextProducts];
+        }
+
+        const res = await fetch("/api/products", {
+          method: "POST",
           headers: { "Content-Type": "application/json", "x-admin-password": pw },
-          body: JSON.stringify({
-            name,
-            category: document.getElementById("prod-category").value,
-            accessLevel: document.getElementById("prod-access").value,
-            imageUrl: document.getElementById("prod-image").value.trim(),
-            downloadUrl,
-            description: document.getElementById("prod-description").value.trim(),
-            active: document.getElementById("prod-active").checked
-          })
+          body: JSON.stringify({ type: "bulk", products: nextProducts })
         });
         const data = await res.json();
         if (!res.ok) { setProdStatus("Error: " + (data.error || res.status), "bad"); return; }
@@ -1523,9 +1536,11 @@
       const pw = getPassword();
       if (!pw) { setProdStatus("Introduce la contraseña y pulsa Entrar.", "bad"); return; }
       try {
-        const res = await fetch("/api/products?id=" + encodeURIComponent(id), {
-          method: "DELETE",
-          headers: { "x-admin-password": pw }
+        const nextProducts = allProducts.filter(p => p.id !== id);
+        const res = await fetch("/api/products", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-admin-password": pw },
+          body: JSON.stringify({ type: "bulk", products: nextProducts })
         });
         const data = await res.json();
         if (!res.ok) { setProdStatus("Error al borrar: " + (data.error || res.status), "bad"); return; }

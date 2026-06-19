@@ -102,6 +102,10 @@ export async function onRequest(context) {
           }
           await DB.put("categories", JSON.stringify(categories));
           return new Response(JSON.stringify({ products, categories }), { headers });
+        } else if (data.type === "bulk") {
+          products = data.products || [];
+          await DB.put("products", JSON.stringify(products));
+          return new Response(JSON.stringify({ products, categories }), { headers });
         } else {
           data.active = data.active !== false;
           if (!data.id) data.id = "p_" + Date.now();
@@ -242,10 +246,11 @@ export async function onRequest(context) {
           const config = await DB.get("config", "json") || {};
           const resendKey = config.resendApiKey || env.RESEND_API_KEY;
           const notifyEmail = config.notifyEmail || "info@excel.ivomarket.com";
+          const fromEmail = config.fromEmail || "onboarding@resend.dev";
 
           if (resendKey) {
             const resendPayload = {
-              from: "Contacto Web <onboarding@resend.dev>",
+              from: `Contacto Web <${fromEmail}>`,
               to: [notifyEmail],
               reply_to: data.email || "no-reply@excel.ivomarket.com",
               subject: "Nuevo Mensaje de Contacto: " + (data.subject || "Sin asunto"),
@@ -262,7 +267,7 @@ export async function onRequest(context) {
               `
             };
 
-            await fetch("https://api.resend.com/emails", {
+            const res = await fetch("https://api.resend.com/emails", {
               method: "POST",
               headers: {
                 "Authorization": `Bearer ${resendKey}`,
@@ -270,8 +275,13 @@ export async function onRequest(context) {
               },
               body: JSON.stringify(resendPayload)
             });
+            if (!res.ok) {
+              console.error("Error al enviar email con Resend:", await res.text());
+            }
           }
-        } catch (e) {}
+        } catch (e) {
+          console.error("Excepción al enviar email de contacto:", e);
+        }
 
         return new Response(JSON.stringify({ ok: true, success: true }), { headers });
       }
