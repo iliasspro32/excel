@@ -58,6 +58,7 @@ async function loadSiteConfig() {
     if (remoteConfig.productName) SITE_CONFIG.metaTitle = remoteConfig.productName;
     if (remoteConfig.price) SITE_CONFIG.precioOferta = remoteConfig.price;
     if (remoteConfig.currency) SITE_CONFIG.currency = remoteConfig.currency;
+    if (remoteConfig.metaPixelId) SITE_CONFIG.metaPixelId = remoteConfig.metaPixelId;
     
   } catch (error) {
     console.warn("Usando configuración local. Para probar el checkout necesitas el backend funcionando.");
@@ -235,8 +236,31 @@ function initScrollAnimations() {
   }, 100);
 }
 
+function initMetaPixel() {
+  const activePixelId = SITE_CONFIG.metaPixelId;
+  if (!activePixelId || typeof window.fbq === "function") return;
+  
+  window.fbq = function () {
+    window.fbq.callMethod ? window.fbq.callMethod.apply(window.fbq, arguments) : window.fbq.queue.push(arguments);
+  };
+  if (!window._fbq) window._fbq = window.fbq;
+  window.fbq.push = window.fbq;
+  window.fbq.loaded = true;
+  window.fbq.version = "2.0";
+  window.fbq.queue = [];
+  
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = "https://connect.facebook.net/en_US/fbevents.js";
+  document.head.appendChild(script);
+  
+  window.fbq("init", activePixelId);
+  window.fbq("track", "PageView");
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   await loadSiteConfig();
+  initMetaPixel();
   renderContent();
   initStickyBar();
   initScrollAnimations();

@@ -698,3 +698,34 @@ section {
 
 .delay-1 { transition-delay: 0.2s; }
 .delay-2 { transition-delay: 0.4s; }
+
+/* =========================================
+   MOBILE OPTIMIZATIONS
+========================================= */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+  .oferta-heading {
+    font-size: 2rem !important;
+  }
+  .section-title h2, h2.section-heading, .garantia-content h2 {
+    font-size: 1.8rem !important;
+  }
+  .precio-destacado {
+    font-size: 2rem;
+  }
+  section {
+    padding: 3rem 0;
+  }
+  .btn-large, .btn-action {
+    padding: 0.8rem 1.2rem;
+    font-size: 0.95rem;
+  }
+  .nav-links {
+    gap: 1rem;
+  }
+}
