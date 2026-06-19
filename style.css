@@ -40,6 +40,8 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 body {
@@ -48,6 +50,7 @@ body {
   background-color: var(--color-bg);
   line-height: 1.6;
   overflow-x: hidden;
+  width: 100%;
 }
 
 /* =========================================
@@ -261,6 +264,8 @@ h1, h2, h3, h4, h5, h6 {
 ========================================= */
 section {
   padding: 6rem 0;
+  overflow-x: hidden;
+  position: relative;
 }
 
 .section-title h2 {
@@ -540,6 +545,9 @@ section {
   gap: 2rem;
   align-items: center;
   background: linear-gradient(135deg, rgba(30,41,59,0.8), rgba(15,23,42,0.9));
+  padding: 2rem;
+  border-radius: 16px;
+  text-align: center;
 }
 
 @media (min-width: 768px) {
@@ -727,5 +735,8 @@ section {
   }
   .nav-links {
     gap: 1rem;
+  }
+  .glass-card {
+    padding: 1.5rem;
   }
 }
