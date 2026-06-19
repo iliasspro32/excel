@@ -239,19 +239,17 @@ export async function onRequest(context) {
         await DB.put("messages", JSON.stringify(msgs));
 
         try {
-          const emailPayload = {
-            personalizations: [
-              { to: [{ email: "info@excel.ivomarket.com", name: "Soporte Excel" }] }
-            ],
-            from: {
-              email: "no-reply@excel.ivomarket.com",
-              name: "Soporte Web Excel"
-            },
-            reply_to: { email: data.email || "no-reply@excel.ivomarket.com", name: data.name || "Cliente" },
-            subject: "Nuevo Mensaje de Contacto: " + (data.subject || "Sin asunto"),
-            content: [{
-              type: "text/html",
-              value: `
+          const config = await DB.get("config", "json") || {};
+          const resendKey = config.resendApiKey || env.RESEND_API_KEY;
+          const notifyEmail = config.notifyEmail || "info@excel.ivomarket.com";
+
+          if (resendKey) {
+            const resendPayload = {
+              from: "Contacto Web <onboarding@resend.dev>",
+              to: [notifyEmail],
+              reply_to: data.email || "no-reply@excel.ivomarket.com",
+              subject: "Nuevo Mensaje de Contacto: " + (data.subject || "Sin asunto"),
+              html: `
                 <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
                   <h2 style="color: #0f8a5f;">Nuevo Mensaje de Contacto</h2>
                   <p><strong>Nombre:</strong> ${data.name || "N/A"}</p>
@@ -260,18 +258,19 @@ export async function onRequest(context) {
                   <div style="margin-top: 20px; padding: 15px; background-color: #f9f9f9; border-left: 4px solid #d4af37;">
                     <p style="white-space: pre-wrap;">${data.message || ""}</p>
                   </div>
-                  <hr style="margin-top: 30px; border: 0; border-top: 1px solid #eee;" />
-                  <p style="font-size: 12px; color: #888;">Este mensaje fue enviado desde el formulario de tu página web (excel.ivomarket.com).</p>
                 </div>
               `
-            }]
-          };
+            };
 
-          await fetch("https://api.mailchannels.net/tx/v1/send", {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify(emailPayload)
-          });
+            await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${resendKey}`,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(resendPayload)
+            });
+          }
         } catch (e) {}
 
         return new Response(JSON.stringify({ ok: true, success: true }), { headers });
