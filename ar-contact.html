@@ -149,28 +149,28 @@
         status.style.display = 'none';
 
         try {
-          var res = await fetch('https://formsubmit.co/ajax/info@excel.ivomarket.com', {
+          var res = await fetch('/api/contact', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json'
             },
             body: JSON.stringify({
-              _subject: "Nuevo Mensaje (Árabe): " + subject,
-              _template: "box",
-              _replyto: email,
-              Nombre: name,
-              Email: email,
-              Asunto: subject,
-              Mensaje: message
+              name: name,
+              email: email,
+              subject: subject,
+              message: message,
+              lang: 'ar',
+              page: location.href,
+              _hp: form._hp.value
             })
           });
           var data = await res.json().catch(()=>({}));
-          if(res.ok && data.success){
+          if(res.ok && (data.ok || data.success)){
             form.reset();
-            showStatus('success', 'تم إرسال رسالتك! سنتواصل معك قريباً.');
+            showStatus('success', 'تم إرسال رسالتك! سنتواصل معك خلال 24–48 ساعة عمل.');
           } else {
-            showStatus('error', data.message || 'حدث خطأ ما. يرجى المحاولة مرة أخرى.');
+            showStatus('error', data.error || 'حدث خطأ ما. يرجى المحاولة مرة أخرى.');
           }
         } catch(_){
           showStatus('error', 'خطأ في الشبكة. يرجى التحقق من اتصالك والمحاولة مجددًا.');

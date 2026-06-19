@@ -149,28 +149,28 @@
         status.style.display = 'none';
 
         try {
-          var res = await fetch('https://formsubmit.co/ajax/info@excel.ivomarket.com', {
+          var res = await fetch('/api/contact', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json'
             },
             body: JSON.stringify({
-              _subject: "Nuevo Mensaje: " + subject,
-              _template: "box",
-              _replyto: email,
-              Nombre: name,
-              Email: email,
-              Asunto: subject,
-              Mensaje: message
+              name: name,
+              email: email,
+              subject: subject,
+              message: message,
+              lang: 'es',
+              page: location.href,
+              _hp: form._hp.value
             })
           });
           var data = await res.json().catch(()=>({}));
-          if(res.ok && data.success){
+          if(res.ok && (data.ok || data.success)){
             form.reset();
-            showStatus('success', '¡Tu mensaje ha sido enviado! Te contactaremos a tu correo en breve.');
+            showStatus('success', '¡Tu mensaje ha sido enviado! Te contactaremos en 24-48 horas laborables.');
           } else {
-            showStatus('error', data.message || 'Hubo un error al enviar el correo. Por favor, inténtalo de nuevo.');
+            showStatus('error', data.error || 'Hubo un error. Por favor, inténtalo de nuevo.');
           }
         } catch(_){
           showStatus('error', 'Error de red. Por favor verifica tu conexión e inténtalo de nuevo.');

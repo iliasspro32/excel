@@ -237,7 +237,44 @@ export async function onRequest(context) {
         let msgs = await DB.get("messages", "json") || [];
         msgs.push({ ...data, id: "msg_" + Date.now(), date: new Date().toISOString(), read: false });
         await DB.put("messages", JSON.stringify(msgs));
-        return new Response(JSON.stringify({ ok: true }), { headers });
+
+        try {
+          const emailPayload = {
+            personalizations: [
+              { to: [{ email: "info@excel.ivomarket.com", name: "Soporte Excel" }] }
+            ],
+            from: {
+              email: "no-reply@excel.ivomarket.com",
+              name: "Soporte Web Excel"
+            },
+            reply_to: { email: data.email || "no-reply@excel.ivomarket.com", name: data.name || "Cliente" },
+            subject: "Nuevo Mensaje de Contacto: " + (data.subject || "Sin asunto"),
+            content: [{
+              type: "text/html",
+              value: `
+                <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+                  <h2 style="color: #0f8a5f;">Nuevo Mensaje de Contacto</h2>
+                  <p><strong>Nombre:</strong> ${data.name || "N/A"}</p>
+                  <p><strong>Email:</strong> ${data.email || "N/A"}</p>
+                  <p><strong>Asunto:</strong> ${data.subject || "N/A"}</p>
+                  <div style="margin-top: 20px; padding: 15px; background-color: #f9f9f9; border-left: 4px solid #d4af37;">
+                    <p style="white-space: pre-wrap;">${data.message || ""}</p>
+                  </div>
+                  <hr style="margin-top: 30px; border: 0; border-top: 1px solid #eee;" />
+                  <p style="font-size: 12px; color: #888;">Este mensaje fue enviado desde el formulario de tu página web (excel.ivomarket.com).</p>
+                </div>
+              `
+            }]
+          };
+
+          await fetch("https://api.mailchannels.net/tx/v1/send", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(emailPayload)
+          });
+        } catch (e) {}
+
+        return new Response(JSON.stringify({ ok: true, success: true }), { headers });
       }
     }
     
