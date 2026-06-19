@@ -149,28 +149,36 @@
         status.style.display = 'none';
 
         try {
-          var res = await fetch('/api/contact', {
+          // 1. Guardar en la base de datos del administrador (Silencioso)
+          fetch('/api/contact', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, subject, message, lang: 'es' })
+          }).catch(()=>{});
+
+          // 2. Enviar el correo profesional vía EmailJS
+          var res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              name: name,
-              email: email,
-              subject: subject,
-              message: message,
-              lang: 'es',
-              page: location.href,
-              _hp: form._hp.value
+              service_id: 'service_1ttba3d',
+              template_id: 'template_ov4lc4i',
+              user_id: 'ipH_4W5c0jtbRkQMg',
+              template_params: {
+                name: name,
+                email: email,
+                subject: subject,
+                message: message,
+                reply_to: email
+              }
             })
           });
-          var data = await res.json().catch(()=>({}));
-          if(res.ok && (data.ok || data.success)){
+          
+          if(res.ok){
             form.reset();
             showStatus('success', '¡Tu mensaje ha sido enviado! Te contactaremos en 24-48 horas laborables.');
           } else {
-            showStatus('error', data.error || 'Hubo un error. Por favor, inténtalo de nuevo.');
+            showStatus('error', 'Hubo un error al conectar con el servidor de correo. Por favor, inténtalo de nuevo.');
           }
         } catch(_){
           showStatus('error', 'Error de red. Por favor verifica tu conexión e inténtalo de nuevo.');
