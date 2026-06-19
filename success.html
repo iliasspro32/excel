@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://connect.facebook.net" crossorigin>
   <link rel="preconnect" href="https://www.facebook.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- META PIXEL PLACEHOLDER
     Pega el mismo código aquí. Meta Pixel Usuario en index.html.
@@ -25,15 +25,15 @@
 
   <style>
     :root {
-      --bg: #061417;
-      --panel: #0b2430;
-      --gold: #d6a84f;
-      --gold-2: #a97822;
-      --text: #f8fafc;
-      --muted: #a1a1aa;
-      --line: rgba(255, 255, 255, 0.1);
-      --success: #22c55e;
-      --radius: 8px;
+      --bg: #0B0F19;
+      --panel: #1e293b;
+      --gold: #F59E0B;
+      --gold-2: #D97706;
+      --text: #F3F4F6;
+      --muted: #9CA3AF;
+      --line: rgba(255, 255, 255, 0.08);
+      --success: #10B981;
+      --radius: 16px;
     }
 
     * {
@@ -46,14 +46,16 @@
       display: grid;
       place-items: center;
       padding: 24px;
-      font-family: "Cairo", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--text);
       background:
-        radial-gradient(circle at 75% 10%, rgba(214, 168, 79, 0.15), transparent 28%),
-        radial-gradient(circle at 12% 16%, rgba(20, 184, 166, 0.12), transparent 32%),
-        linear-gradient(215deg, #061417 0%, #0b2430 44%, #071513 100%);
+        radial-gradient(circle at 75% 10%, rgba(245, 158, 11, 0.15), transparent 28%),
+        radial-gradient(circle at 12% 16%, rgba(16, 185, 129, 0.15), transparent 32%),
+        linear-gradient(215deg, #0B0F19 0%, #06090F 44%, #0B0F19 100%);
       line-height: 1.5;
     }
+
+    h1, h2, h3, h4 { font-family: "Outfit", sans-serif; }
 
     .card {
       width: min(760px, 100%);
