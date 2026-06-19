@@ -812,7 +812,11 @@
           return fetch("/paypal-create-order", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ productName: SITE_CONFIG.productName })
+            body: JSON.stringify({ 
+              productName: SITE_CONFIG.productName,
+              orderBump: isOrderBumpSelected(),
+              email: (document.getElementById("lead-email")?.value || "").trim()
+            })
           }).then((res) => res.json().then((data) => {
             if (!res.ok || !data.id) throw new Error(data.error || "PayPal order error.");
             return data.id;
