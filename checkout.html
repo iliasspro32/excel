@@ -615,6 +615,7 @@
           currency: SITE_CONFIG.currency
         }, { eventId: "checkout.lead." + email.toLowerCase(), once: true });
       }
+      sessionStorage.setItem("checkout_email", email);
       try {
         await fetch("/api/cart-leads", {
           method: "POST",

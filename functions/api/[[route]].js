@@ -67,7 +67,9 @@ export async function onRequest(context) {
             upsellImageUrl: config.upsellImageUrl,
             upsellPrice: config.upsellPrice,
             metaPixelId: config.metaPixelId,
-            gtmId: config.gtmId
+            gtmId: config.gtmId,
+            paypalClientId: config.paypalClientId,
+            paypalMerchantId: config.paypalMerchantId
           };
           return new Response(JSON.stringify(publicConfig), { headers });
         }

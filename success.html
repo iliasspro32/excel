@@ -581,6 +581,7 @@
         const body = {
           method,
           locale,
+          email: sessionStorage.getItem("checkout_email") || "",
           sourceUrl: window.location.href,
           trackingConsent: localStorage.getItem("cookieConsent") === "accepted",
           fbp: getCookieValue("_fbp"),
