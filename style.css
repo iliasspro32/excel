@@ -658,20 +658,23 @@ section {
   font-size: 0.9rem;
 }
 
-/* Mobile Sticky Bar */
+/* Mobile Sticky Bar (App-like Pill) */
 .mobile-sticky-bar {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: rgba(11, 15, 25, 0.95);
-  backdrop-filter: blur(15px);
-  border-top: 1px solid rgba(255,255,255,0.1);
-  padding: 1rem;
+  bottom: 20px;
+  left: 16px;
+  right: 16px;
+  width: auto;
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  padding: 12px 20px;
   z-index: 1000;
   transform: translateY(150%);
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.8), 0 0 20px rgba(16, 185, 129, 0.15);
 }
 
 .mobile-sticky-bar.visible {
@@ -712,45 +715,51 @@ section {
 ========================================= */
 @media (max-width: 768px) {
   .hero-title {
-    font-size: 2rem;
+    font-size: 2.1rem;
+    line-height: 1.15;
   }
   .hero-subtitle {
-    font-size: 1rem;
+    font-size: 1.05rem;
   }
   .oferta-heading {
-    font-size: 2rem !important;
+    font-size: 2.2rem !important;
   }
   .section-title h2, h2.section-heading, .garantia-content h2 {
-    font-size: 1.8rem !important;
+    font-size: 1.9rem !important;
   }
   .precio-destacado {
-    font-size: 2rem;
+    font-size: 2.2rem;
   }
   section {
-    padding: 3rem 0;
+    padding: 3.5rem 0;
   }
   .btn-large, .btn-action {
-    padding: 0.8rem 1.2rem;
-    font-size: 0.95rem;
+    padding: 1rem 1.4rem;
+    font-size: 1rem;
+    width: 100%;
+    text-align: center;
   }
   .nav-links {
     gap: 1rem;
   }
   .glass-card {
     padding: 1.5rem;
+    border-radius: 24px;
   }
-  /* Navbar Mobile Fixes */
-  .logo span {
-    font-size: 1.1rem !important;
-  }
+  /* Navbar Mobile Fixes - Clean App Style */
   .navbar-container .btn-action {
-    padding: 6px 12px !important;
-    font-size: 11px !important;
-    white-space: nowrap !important;
-    border-radius: 6px !important;
-    line-height: 1 !important;
-    height: auto !important;
-    min-height: unset !important;
-    letter-spacing: 0px !important;
+    display: none !important; /* Hide tiny button on mobile */
+  }
+  .navbar-container {
+    justify-content: center; /* Center logo like an app header */
+  }
+  .logo span {
+    font-size: 1.4rem !important;
+  }
+  .mobile-sticky-bar .btn-action {
+    width: auto;
+    padding: 10px 24px;
+    font-size: 0.95rem;
+    border-radius: 14px;
   }
 }
