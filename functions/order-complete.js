@@ -38,7 +38,7 @@ export async function onRequestPost(context) {
 
     // --- Facebook Conversions API (CAPI) Integration ---
     const pixelId = env.FB_PIXEL_ID || body.pixelId;
-    const token = env.FB_ACCESS_TOKEN;
+    const token = env.FB_ACCESS_TOKEN || env.META_CAPI_ACCESS_TOKEN;
     
     if (pixelId && token) {
       try {
