@@ -208,21 +208,118 @@ export async function onRequest(context) {
         let orders = await DB.get("orders", "json") || [];
         return new Response(JSON.stringify({ 
           orders, 
-          stats: { total: orders.length, revenue: orders.reduce((acc, o) => acc + (o.amount || 0), 0), stripe: 0, paypal: 0 } 
+          stats: { total: orders.length, revenue: orders.reduce((acc, o) => acc + (o.amount || 0), 0), stripe: orders.filter(o=>o.method==='stripe').length, paypal: orders.filter(o=>o.method?.includes('paypal')).length } 
         }), { headers });
       } else if (request.method === "POST") {
         checkAuth();
+        const data = await request.json().catch(() => ({}));
+        if (data.action === "recover-paypal") {
+          let orders = await DB.get("orders", "json") || [];
+          const orderId = `ORD-${Date.now().toString().slice(-6)}`;
+          orders.push({
+            id: orderId,
+            orderId: data.paypalOrderId || orderId,
+            email: data.email,
+            status: "completed",
+            amount: data.amount || 0,
+            currency: data.currency || "USD",
+            method: "paypal-recovered",
+            date: new Date().toISOString()
+          });
+          await DB.put("orders", JSON.stringify(orders));
+          
+          const config = await DB.get("config", "json") || {};
+          const resendKey = config.resendApiKey || env.RESEND_API_KEY;
+          let emailSent = false;
+          if (resendKey) {
+            const emailHtml = `
+              <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+                <h2 style="color: #0f8a5f;">¡Acceso concedido!</h2>
+                <p>Hemos procesado tu pago correctamente. Puedes acceder a todo tu material aquí:</p>
+                <a href="${env.SITE_URL || "https://digital.raqmiy.com"}/panel.html" style="display: inline-block; background-color: #0f8a5f; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 15px;">Ir a mi panel de usuario</a>
+                <p style="margin-top: 20px;">Tu correo de acceso es: <strong>${data.email}</strong></p>
+              </div>
+            `;
+            const res = await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: { "Authorization": `Bearer ${resendKey}`, "Content-Type": "application/json" },
+              body: JSON.stringify({
+                from: `Soporte <${config.fromEmail || "onboarding@resend.dev"}>`,
+                to: [data.email],
+                subject: "Acceso a tu compra",
+                html: emailHtml
+              })
+            });
+            emailSent = res.ok;
+          }
+          return new Response(JSON.stringify({ ok: true, emailSent, orderId }), { headers });
+        }
         return new Response(JSON.stringify({ ok: true }), { headers });
       }
     }
 
     if (path.startsWith("/api/carts")) {
+      let carts = await DB.get("carts", "json") || [];
       if (request.method === "GET") {
         checkAuth();
-        return new Response(JSON.stringify({ carts: [], recovered: [], stats: {} }), { headers });
+        const abandoned = carts.filter(c => !c.recovered);
+        const recovered = carts.filter(c => c.recovered);
+        return new Response(JSON.stringify({ 
+          carts: abandoned, 
+          recovered: recovered, 
+          stats: {
+            abandoned: abandoned.length,
+            recovered: recovered.length,
+            reminders: carts.filter(c => c.emailSent).length,
+            eligible: abandoned.filter(c => !c.emailSent).length
+          } 
+        }), { headers });
       } else if (request.method === "POST") {
         checkAuth();
-        return new Response(JSON.stringify({ ok: true }), { headers });
+        const config = await DB.get("config", "json") || {};
+        const resendKey = config.resendApiKey || env.RESEND_API_KEY;
+        if (!resendKey) return new Response(JSON.stringify({ error: "API Key de Resend no configurada" }), { status: 400, headers });
+        
+        const minHours = config.cartCampaignMinHours || 1;
+        const now = Date.now();
+        let sentCount = 0;
+        
+        for (let cart of carts) {
+          if (!cart.recovered && !cart.emailSent) {
+            const cartTime = new Date(cart.date).getTime();
+            const hoursPassed = (now - cartTime) / (1000 * 60 * 60);
+            
+            if (hoursPassed >= minHours) {
+              const resendPayload = {
+                from: `Atención al Cliente <${config.fromEmail || "onboarding@resend.dev"}>`,
+                to: [cart.email],
+                subject: config.cartReminderSubject || "Termina tu compra",
+                html: `
+                  <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; direction: rtl; text-align: right;">
+                    <h2 style="color: #0f8a5f;">${config.cartReminderHeadline || "Notamos que no terminaste tu compra"}</h2>
+                    <p style="white-space: pre-wrap;">${config.cartReminderBody || "Haz clic abajo para continuar donde lo dejaste."}</p>
+                    <a href="${env.SITE_URL || "https://digital.raqmiy.com"}/checkout.html?email=${cart.email}" style="display: inline-block; background-color: #0f8a5f; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 15px;">
+                      ${config.cartReminderCta || "Continuar Compra"}
+                    </a>
+                  </div>
+                `
+              };
+              try {
+                const res = await fetch("https://api.resend.com/emails", {
+                  method: "POST",
+                  headers: { "Authorization": `Bearer ${resendKey}`, "Content-Type": "application/json" },
+                  body: JSON.stringify(resendPayload)
+                });
+                if (res.ok) {
+                  cart.emailSent = true;
+                  sentCount++;
+                }
+              } catch(e) {}
+            }
+          }
+        }
+        await DB.put("carts", JSON.stringify(carts));
+        return new Response(JSON.stringify({ ok: true, sentCount }), { headers });
       }
     }
     
@@ -290,6 +387,26 @@ export async function onRequest(context) {
     }
     
     if (path.startsWith("/api/cart-leads") || path.startsWith("/api/chat-lead")) {
+      if (request.method === "POST") {
+        const data = await request.json().catch(() => ({}));
+        if (data.email) {
+          let carts = await DB.get("carts", "json") || [];
+          const existing = carts.find(c => c.email.toLowerCase() === data.email.toLowerCase());
+          if (!existing) {
+            carts.push({
+              id: "cart_" + Date.now(),
+              email: data.email,
+              name: data.name || "",
+              date: new Date().toISOString(),
+              recovered: false,
+              emailSent: false
+            });
+          } else {
+            existing.date = new Date().toISOString();
+          }
+          await DB.put("carts", JSON.stringify(carts));
+        }
+      }
       return new Response(JSON.stringify({ ok: true }), { headers });
     }
 

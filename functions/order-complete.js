@@ -34,6 +34,50 @@ export async function onRequestPost(context) {
       let orders = await DB.get("orders", "json") || [];
       orders.push(mockOrder);
       await DB.put("orders", JSON.stringify(orders));
+      
+      // Update cart recovery status
+      let carts = await DB.get("carts", "json") || [];
+      const cartIndex = carts.findIndex(c => c.email.toLowerCase() === mockOrder.email.toLowerCase());
+      if (cartIndex !== -1 && !carts[cartIndex].recovered) {
+        carts[cartIndex].recovered = true;
+        await DB.put("carts", JSON.stringify(carts));
+      }
+      
+      // Send Welcome Email via Resend
+      try {
+        const config = await DB.get("config", "json") || {};
+        const resendKey = config.resendApiKey || env.RESEND_API_KEY;
+        if (resendKey && mockOrder.email !== "cliente@ejemplo.com") {
+          const emailHtml = `
+            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; direction: rtl; text-align: right;">
+              <h2 style="color: #0f8a5f;">¡Gracias por tu compra!</h2>
+              <p>Tu pedido ha sido procesado exitosamente. Puedes acceder a todo el material descargable y a tus bonos exclusivos directamente desde tu panel de usuario.</p>
+              <a href="${env.SITE_URL || "https://digital.raqmiy.com"}/panel.html" style="display: inline-block; background-color: #0f8a5f; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 15px;">
+                Ir a mi Panel de Usuario
+              </a>
+              <p style="margin-top: 20px;">Tu correo asociado para acceder es: <strong>${mockOrder.email}</strong></p>
+            </div>
+          `;
+          
+          context.waitUntil(
+            fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: { "Authorization": `Bearer ${resendKey}`, "Content-Type": "application/json" },
+              body: JSON.stringify({
+                from: `Soporte <${config.fromEmail || "onboarding@resend.dev"}>`,
+                to: [mockOrder.email],
+                subject: "¡Bienvenido! Acceso a tu compra",
+                html: emailHtml
+              })
+            })
+            .then(res => res.text())
+            .then(text => console.log("Post-purchase Email Response:", text))
+            .catch(e => console.error("Post-purchase Email Error:", e))
+          );
+        }
+      } catch (emailErr) {
+        console.error("Error preparing welcome email:", emailErr);
+      }
     }
 
     // --- Facebook Conversions API (CAPI) Integration ---
